@@ -34,6 +34,7 @@ int main(int argc, char* argv[]){
     uint16_t nBuildings = 12;
     double interPacketInterval = 100;
     double simTime = 10;
+    double enbTxPowerDbm = 46.0;
     CommandLine cmd;
     cmd.AddValue("nUe", "Number of UEs", nUe);
     cmd.AddValue("nEnb", "Number of ENBs", nEnb);
@@ -49,10 +50,19 @@ int main(int argc, char* argv[]){
     cmd.AddValue("simTime", "Duration of simulation in seconds", simTime);
     cmd.Parse(argc, argv);
     
+    Config::SetDefault ("ns3::LteHelper::UseIdealRrc", BooleanValue (true));
+    
     Ptr<LteHelper> lteHelper = CreateObject<LteHelper> ();
     Ptr<PointToPointEpcHelper>  epcHelper = CreateObject<PointToPointEpcHelper> ();
     lteHelper->SetEpcHelper (epcHelper);
 
+    lteHelper->SetSchedulerType ("ns3::RrFfMacScheduler");
+
+    lteHelper->SetHandoverAlgorithmType ("ns3::A2A4RsrqHandoverAlgorithm");
+    lteHelper->SetHandoverAlgorithmAttribute ("ServingCellThreshold",
+                                            UintegerValue (30));
+    lteHelper->SetHandoverAlgorithmAttribute ("NeighbourCellOffset",
+                                            UintegerValue (1));
     //ConfigStore inputConfig;
     //inputConfig.ConfigureDefaults();
     //cmd.Parse(argc, argv);
@@ -132,6 +142,7 @@ int main(int argc, char* argv[]){
     }
     
     // Install LTE Devices to the nodes
+    Config::SetDefault ("ns3::LteEnbPhy::TxPower", DoubleValue (enbTxPowerDbm));
     NetDeviceContainer enbDevs;
     NetDeviceContainer ueDevs[nEnb];
     
@@ -196,6 +207,8 @@ int main(int argc, char* argv[]){
     }
     serverApps.Start (Seconds (0.01));
     clientApps.Start (Seconds (0.01));
+    
+    lteHelper->AddX2Interface (enbNodes);
     
     Simulator::Stop (Seconds (simTime));
     Simulator::Run ();
