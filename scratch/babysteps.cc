@@ -95,6 +95,21 @@ int main(int argc, char * argv[]){
     enbNodes.Create (nEnb);
     ueNodes.Create (nUe);
     
+    //Create the buildings
+    Ptr<Building> buildings[nBuildings];
+    for (i = 0; i < nBuildings; i++){
+        buildings[i] = CreateObject<Building> ();
+        buildings[i]->SetBoundaries (Box (100 * i, (100 * i + 50), 50, 100, 0, 12));
+        buildings[i]->SetBuildingType (Building::Residential);
+        buildings[i]->SetExtWallsType (Building::ConcreteWithWindows);
+        buildings[i]->SetNFloors ((i % 6) + 1);
+        buildings[i]->SetNRoomsX ((i % 3) + 1);
+        buildings[i]->SetNRoomsY ((i % 3) + 1);
+    }
+    
+    Ptr<HybridBuildingsPropagationLossModel> propagationLossModel = CreateObject<HybridBuildingsPropagationLossModel> ();
+    
+    
     Ptr<ListPositionAllocator> positionAllocEnb = CreateObject<ListPositionAllocator> ();
     for (i = 0; i < nEnb; i++)
         positionAllocEnb->Add (Vector(distance1 * i, 0, 0));
@@ -102,6 +117,12 @@ int main(int argc, char * argv[]){
     mobilityEnb.SetMobilityModel("ns3::ConstantPositionMobilityModel");
     mobilityEnb.SetPositionAllocator (positionAllocEnb);
     mobilityEnb.Install (enbNodes);
+    
+    //BuildingsHelper::MakeMobilityModelConsistent ();
+    
+    //Ptr<MobilityBuildingInfo> buildingInfoEnb = CreateObject<MobilityBuildingInfo> ();
+    //mobilityEnb.AggregateObject (buildingInfoEnb);
+    //BuildingsHelper::MakeMobilityModelConsistent ();
     
     MobilityHelper mobilityUe;
     Ptr<UniformRandomVariable> speed = CreateObject<UniformRandomVariable> ();
@@ -114,14 +135,15 @@ int main(int argc, char * argv[]){
     positionAllocUe->Add (Vector(0, distance2, 0));
     positionAllocUe->Add (Vector(length, distance2, 0));
     mobilityUe.SetMobilityModel ("ns3::RandomWaypointMobilityModel",
-                               //"Speed", RandomVariableValue (UniformVariable (minSpeed, maxSpeed)),
+                               //"Speed", DoubleValue (speed->GetValue()),
                                //"Pause", RandomVariableValue (DoubleValue (pause->GetValue())),
                                "PositionAllocator", PointerValue (positionAllocUe));
     mobilityUe.SetPositionAllocator (positionAllocUe);
     //Ptr<MobilityBuildingInfo> buildingInfoUe = CreateObject<MobilityBuildingInfo> ();
-    //mobilityUe->AggregateObject (buildingInfoUe); // operation usually done by BuildingsHelper::Install
-    //BuildingsHelper::MakeConsistent (mobilityUe);
+    //mobilityUe.AggregateObject (buildingInfoUe); // operation usually done by BuildingsHelper::Install
+    //BuildingsHelper::MakeMobilityModelConsistent ();
     mobilityUe.Install (ueNodes);
+    //BuildingsHelper::MakeMobilityModelConsistent ();
     
     Config::SetDefault ("ns3::LteEnbPhy::TxPower", DoubleValue (enbTxPowerDbm));
     NetDeviceContainer enbDevs;
