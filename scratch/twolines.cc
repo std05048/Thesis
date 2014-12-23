@@ -22,9 +22,9 @@ int main(int argc, char * argv[]){
     uint16_t nUe = 30;
     uint16_t i = 0;
     uint16_t j = 0;
-    double distance1 = 100;
-    double length = 1000;
-    double distance2 = 30;
+    double distance1 = 1000;
+    double length = 10000;
+    double distance2 = 300;
     double minSpeed = 1;
     double maxSpeed = 55;
     double minDelay = 0;
@@ -32,7 +32,7 @@ int main(int argc, char * argv[]){
     uint16_t nBuildings = 12;
     double interPacketInterval = 100;
     double enbTxPowerDbm = 46.0;
-    double simTime = 1;
+    double simTime = 9;
     
     CommandLine cmd;
     cmd.AddValue("nUe", "Number of UEs", nUe);

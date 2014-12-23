@@ -139,13 +139,13 @@ main (int argc, char *argv[])
   // LogComponentEnable ("A2A4RsrqHandoverAlgorithm", logLevel);
   // LogComponentEnable ("A3RsrpHandoverAlgorithm", logLevel);
 
-  uint16_t numberOfUes = 1;
-  uint16_t numberOfEnbs = 2;
+  uint16_t numberOfUes = 5;
+  uint16_t numberOfEnbs = 10;
   uint16_t numBearersPerUe = 0;
-  double distance = 500.0; // m
+  double distance = 1000.0; // m
   double yForUe = 500.0;   // m
-  double speed = 20;       // m/s
-  double simTime = (double)(numberOfEnbs + 1) * distance / speed; // 1500 m / 20 m/s = 75 secs
+  double speed = 50;       // m/s
+  double simTime = 50;
   double enbTxPowerDbm = 46.0;
 
   // change some default attributes so that they are reasonable for
@@ -232,7 +232,7 @@ main (int argc, char *argv[])
   Ptr<ListPositionAllocator> enbPositionAlloc = CreateObject<ListPositionAllocator> ();
   for (uint16_t i = 0; i < numberOfEnbs; i++)
     {
-      Vector enbPosition (distance * (i + 1), distance, 0);
+      Vector enbPosition (distance * i, distance, 0);
       enbPositionAlloc->Add (enbPosition);
     }
   MobilityHelper enbMobility;
@@ -244,9 +244,11 @@ main (int argc, char *argv[])
   MobilityHelper ueMobility;
   ueMobility.SetMobilityModel ("ns3::ConstantVelocityMobilityModel");
   ueMobility.Install (ueNodes);
-  ueNodes.Get (0)->GetObject<MobilityModel> ()->SetPosition (Vector (0, yForUe, 0));
-  ueNodes.Get (0)->GetObject<ConstantVelocityMobilityModel> ()->SetVelocity (Vector (speed, 0, 0));
-
+  for (uint16_t i = 0; i < numberOfUes; i++)
+    {
+      ueNodes.Get (i)->GetObject<MobilityModel> ()->SetPosition (Vector (0, yForUe, 0));
+      ueNodes.Get (i)->GetObject<ConstantVelocityMobilityModel> ()->SetVelocity (Vector (speed - (i * 5), 0, 0));
+    }
   // Install LTE Devices in eNB and UEs
   Config::SetDefault ("ns3::LteEnbPhy::TxPower", DoubleValue (enbTxPowerDbm));
   NetDeviceContainer enbLteDevs = lteHelper->InstallEnbDevice (enbNodes);
