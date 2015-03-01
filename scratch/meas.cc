@@ -26,6 +26,7 @@
 #include "ns3/applications-module.h"
 #include "ns3/point-to-point-module.h"
 #include "ns3/config-store-module.h"
+#include "ns3/wifi-module.h"
 
 using namespace ns3;
 
@@ -253,6 +254,30 @@ main (int argc, char *argv[])
   Config::SetDefault ("ns3::LteEnbPhy::TxPower", DoubleValue (enbTxPowerDbm));
   NetDeviceContainer enbLteDevs = lteHelper->InstallEnbDevice (enbNodes);
   NetDeviceContainer ueLteDevs = lteHelper->InstallUeDevice (ueNodes);
+
+  // Install WiFi on UEs
+  /*YansWifiChannelHelper channel = YansWifiChannelHelper::Default ();
+  YansWifiPhyHelper phy = YansWifiPhyHelper::Default ();
+  phy.SetChannel (channel.Create ());
+
+  WifiHelper wifi = WifiHelper::Default ();
+  wifi.SetRemoteStationManager ("ns3::AarfWifiManager");
+
+  NqosWifiMacHelper mac = NqosWifiMacHelper::Default ();
+
+  Ssid ssid = Ssid ("ns-3-ssid");
+  mac.SetType ("ns3::StaWifiMac",
+               "Ssid", SsidValue (ssid),
+               "ActiveProbing", BooleanValue (false));
+
+  NetDeviceContainer staDevices;
+  staDevices = wifi.Install (phy, mac, ueNodes);
+
+  mac.SetType ("ns3::ApWifiMac",
+               "Ssid", SsidValue (ssid));
+
+  NetDeviceContainer apDevices;
+  apDevices = wifi.Install (phy, mac, remoteHostContainer.Get (0));*/
 
   // Install the IP stack on the UEs
   internet.Install (ueNodes);
